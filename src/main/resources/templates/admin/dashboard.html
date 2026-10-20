@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản trị')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Bảng điều khiển</h2>
+                <p class="section-sub">Tổng quan hoạt động của hệ thống rạp CineX</p>
+            </div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+                <a class="btn btn-outline btn-sm" th:href="@{/admin/movies}">Phim</a>
+                <a class="btn btn-outline btn-sm" th:href="@{/admin/cinemas}">Rạp</a>
+                <a class="btn btn-outline btn-sm" th:href="@{/admin/bookings}">Đơn đặt vé</a>
+                <a class="btn btn-outline btn-sm" th:href="@{/admin/promotions}">Khuyến mãi</a>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat">
+                <div class="stat-label">Phim đang chiếu</div>
+                <div class="stat-value" th:text="${stats.activeMovies}">0</div>
+                <div class="stat-delta" style="color:var(--text-dim)"
+                     th:text="'Tổng ' + ${stats.totalMovies} + ' phim trong hệ thống'">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Chi nhánh rạp</div>
+                <div class="stat-value" th:text="${stats.totalCinemas}">0</div>
+                <div class="stat-delta" style="color:var(--text-dim)"
+                     th:text="${stats.totalScreens} + ' phòng chiếu'">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Suất chiếu sắp tới</div>
+                <div class="stat-value" th:text="${stats.upcomingShowtimes}">0</div>
+                <div class="stat-delta" style="color:var(--text-dim)">Đang mở bán</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Đơn đặt vé</div>
+                <div class="stat-value" th:text="${stats.totalBookings}">0</div>
+                <div class="stat-delta" style="color:var(--gold)"
+                     th:text="${stats.pendingBookings} + ' đang chờ thanh toán'">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Doanh thu tuần này</div>
+                <div class="stat-value" th:text="${#numbers.formatInteger(stats.revenueThisWeek, 1, 'COMMA')} + ' đ'">0</div>
+                <div class="stat-delta" th:classappend="${stats.revenueThisWeek >= stats.revenueLastWeek} ? 'up' : 'down'"
+                     th:text="'Tuần trước: ' + ${#numbers.formatInteger(stats.revenueLastWeek, 1, 'COMMA')} + ' đ'">—</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================= DOANH THU THEO RẠP ====================== -->
+    <section class="section" th:if="${stats.brandRevenue != null and !stats.brandRevenue.isEmpty()}">
+        <div class="section-head">
+            <h2 class="section-title">Doanh thu theo thương hiệu rạp</h2>
+        </div>
+        <div class="card card-body">
+            <table class="table">
+                <thead>
+                <tr><th>Thương hiệu</th><th>Số đơn</th><th>Doanh thu</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="brand : ${stats.brandRevenue}">
+                    <td th:text="${brand.brand}">CineX</td>
+                    <td th:text="${brand.bookings}">0</td>
+                    <td th:text="${#numbers.formatInteger(brand.revenue, 1, 'COMMA')} + ' đ'">0 đ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ======================== ĐƠN ĐẶT VÉ GẦN ĐÂY ==================== -->
+    <section class="section">
+        <div class="section-head">
+            <h2 class="section-title">Đơn đặt vé gần đây</h2>
+        </div>
+        <div class="card card-body">
+            <table class="table">
+                <thead>
+                <tr><th>Mã đơn</th><th>Phim</th><th>Rạp</th><th>Suất chiếu</th><th>Tổng tiền</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking : ${recentBookings}">
+                    <td class="ticket-code" th:text="${booking.code}">BK000</td>
+                    <td th:text="${booking.showtime.movie.title}">—</td>
+                    <td th:text="${booking.showtime.cinema.name}">—</td>
+                    <td th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm dd/MM')}">—</td>
+                    <td th:text="${#numbers.formatInteger(booking.finalAmount, 1, 'COMMA')} + ' đ'">—</td>
+                    <td>
+                        <span class="badge" th:if="${booking.status == 'confirmed'}" style="color:var(--green)">Đã thanh toán</span>
+                        <span class="badge" th:if="${booking.status == 'pending'}" style="color:var(--gold)">Chờ thanh toán</span>
+                        <span class="badge" th:if="${booking.status == 'cancelled'}" style="color:var(--brand-soft)">Đã huỷ</span>
+                    </td>
+                </tr>
+                <tr th:if="${recentBookings == null or recentBookings.isEmpty()}">
+                    <td colspan="6" style="text-align:center;color:var(--text-dim)">Chưa có đơn đặt vé nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

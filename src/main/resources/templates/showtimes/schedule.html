@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Lịch chiếu')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('showtimes')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Lịch chiếu</h2>
+                <p class="section-sub">Chọn rạp và khung giờ để đặt vé</p>
+            </div>
+            <form th:action="@{/showtimes}" method="get" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input type="date" name="date" th:value="${fromDate}">
+                <select name="days" onchange="this.form.submit()" style="width:auto">
+                    <option th:value="1" th:text="'1 ngày'" th:selected="${days == 1}"></option>
+                    <option th:value="3" th:text="'3 ngày'" th:selected="${days == 3}"></option>
+                    <option th:value="7" th:text="'7 ngày'" th:selected="${days == 7}"></option>
+                </select>
+                <select name="cinemaId" onchange="this.form.submit()" style="width:auto">
+                    <option value="">Tất cả rạp</option>
+                    <option th:each="cinema : ${cinemas}" th:value="${cinema.id}"
+                            th:text="${cinema.name}" th:selected="${cinema.id == selectedCinemaId}"></option>
+                </select>
+                <button class="btn btn-outline btn-sm" type="submit">Xem</button>
+            </form>
+        </div>
+
+        <div class="st-group" th:each="group : ${groups}">
+            <h3 class="st-date"
+                th:text="${#temporals.format(group.date, 'EEEE, dd/MM/yyyy')}">Thứ hai, 01/01/2026</h3>
+
+            <div class="st-cinema" th:each="showtime : ${group.showtimes}">
+                <div class="st-cinema-name">
+                    <span th:text="${showtime.cinema.name}">Rạp</span>
+                    · <span th:text="${showtime.movie.title}">Phim</span>
+                    · <span th:text="${showtime.screen.name}">Phòng</span>
+                </div>
+                <div class="st-times">
+                    <a class="st-time" th:href="@{/booking/seats/{id}(id=${showtime.id})}"
+                       th:text="${#temporals.format(showtime.startTime, 'HH:mm')}">19:00</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${groups == null or groups.isEmpty()}">
+            <div class="empty-icon">📅</div>
+            <div>Chưa có suất chiếu nào</div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

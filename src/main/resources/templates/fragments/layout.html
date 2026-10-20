@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} != null ? ${title} + ' - CineX' : 'CineX - Rạp phim'">CineX</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23e50914'/><text x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>C</text></svg>">
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="site-header" th:fragment="header(active)">
+    <div class="container navbar">
+        <a th:href="@{/}" class="logo">
+            <span class="logo-mark">C</span>
+            <span>CineX</span>
+        </a>
+
+        <ul class="nav-links">
+            <li><a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">Trang chủ</a></li>
+            <li><a th:href="@{/movies}" th:classappend="${active == 'movies'} ? 'active'">Phim</a></li>
+            <li><a th:href="@{/showtimes}" th:classappend="${active == 'showtimes'} ? 'active'">Lịch chiếu</a></li>
+            <li><a th:href="@{/cinemas}" th:classappend="${active == 'cinemas'} ? 'active'">Rạp</a></li>
+            <li><a th:href="@{/promotions}" th:classappend="${active == 'promotions'} ? 'active'">Khuyến mãi</a></li>
+        </ul>
+
+        <div class="nav-right">
+            <a sec:authorize="isAuthenticated()" th:href="@{/my-tickets}" class="btn btn-outline btn-sm">Vé của tôi</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" class="btn btn-outline btn-sm">Quản trị</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-outline btn-sm">Đăng nhập</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-primary btn-sm">Đăng ký</a>
+            <div sec:authorize="isAuthenticated()" style="display:flex;align-items:center;gap:10px">
+                <a th:href="@{/profile}" class="avatar"
+                   th:text="${currentUser != null and #strings.length(currentUser.name) > 0
+                             ? #strings.substring(currentUser.name, 0, 1).toUpperCase() : 'U'}">U</a>
+                <form th:action="@{/logout}" method="post" style="margin:0">
+                    <button type="submit" class="btn btn-sm btn-outline">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ============================ FLASH ============================= -->
+<div th:fragment="flash">
+    <div th:if="${success}" class="flash flash-success" th:text="${success}"></div>
+    <div th:if="${error}" class="flash flash-error" th:text="${error}"></div>
+</div>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="site-footer" th:fragment="footer">
+    <div class="container footer-inner">
+        <div>
+            <div class="logo" style="font-size:19px;margin-bottom:8px">
+                <span class="logo-mark">C</span><span>CineX</span>
+            </div>
+            <div>Hệ thống đặt vé xem phim trực tuyến - Hệ thống rạp CineX Việt Nam</div>
+        </div>
+        <div>
+            <div style="margin-bottom:8px;font-weight:600;color:var(--text)">Liên hệ</div>
+            <div>Hotline: 1900 6868</div>
+            <div>Email: support@cinex.vn</div>
+        </div>
+        <div>
+            <div style="margin-bottom:8px;font-weight:600;color:var(--text)">Giờ chiếu</div>
+            <div>T2 - CN: 09:00 - 23:00</div>
+            <div>Thứ Bảy & Chủ nhật: 08:00 - 23:30</div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

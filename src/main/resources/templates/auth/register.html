@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng ký')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('')}"></header>
+
+<main class="container">
+    <div class="auth-wrap">
+        <div class="auth-head">
+            <div class="logo" style="justify-content:center;font-size:26px">
+                <span class="logo-mark">C</span><span>CineX</span>
+            </div>
+            <h1 style="margin-top:18px">Đăng ký tài khoản</h1>
+            <p style="color:var(--text-dim);font-size:14px">Tạo tài khoản để đặt vé tại hệ thống CineX</p>
+        </div>
+
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="card card-body">
+            <form th:action="@{/register}" th:object="${registerForm}" method="post">
+                <div class="form-group">
+                    <label for="name">Họ và tên</label>
+                    <input type="text" id="name" th:field="*{name}" required
+                           placeholder="Nguyễn Văn A">
+                    <div class="form-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" th:field="*{email}" required
+                           placeholder="ban@email.com">
+                    <div class="form-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="text" id="phone" th:field="*{phone}" required
+                           placeholder="0900000000">
+                    <div class="form-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" id="password" th:field="*{password}" required
+                               placeholder="Tối thiểu 6 ký tự">
+                        <div class="form-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Xác nhận mật khẩu</label>
+                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required
+                               placeholder="Nhập lại mật khẩu">
+                        <div class="form-error" th:if="${#fields.hasErrors('confirmPassword')}"
+                             th:errors="*{confirmPassword}"></div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" type="submit">Đăng ký</button>
+            </form>
+
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);
+                        font-size:13px;color:var(--text-dim);text-align:center">
+                Đã có tài khoản?
+                <a th:href="@{/login}" style="color:var(--brand-soft);font-weight:600">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

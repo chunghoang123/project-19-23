@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Thanh toán')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('showtimes')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Hoàn tất đặt vé</h2>
+                <p class="section-sub">
+                    Mã đơn <span class="ticket-code" th:text="${booking.code}">BK000</span>
+                </p>
+            </div>
+            <a class="btn btn-outline btn-sm" th:href="@{/my-tickets}">Vé của tôi</a>
+        </div>
+
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="detail-layout">
+            <div>
+                <div class="card card-body">
+                    <div style="font-weight:700;margin-bottom:12px">Thông tin suất chiếu</div>
+                    <dl class="kv" style="margin:0">
+                        <dt>Phim</dt>
+                        <dd th:text="${booking.showtime.movie.title}">—</dd>
+                        <dt>Rạp</dt>
+                        <dd th:text="${booking.showtime.cinema.name}">—</dd>
+                        <dt>Phòng</dt>
+                        <dd th:text="${booking.showtime.screen.name}">—</dd>
+                        <dt>Giờ chiếu</dt>
+                        <dd th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm dd/MM/yyyy')}">—</dd>
+                    </dl>
+                </div>
+
+                <div class="card card-body" style="margin-top:16px">
+                    <div style="font-weight:700;margin-bottom:12px">Ghế đã chọn</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <span class="badge badge-new" th:each="ticket : ${tickets}" th:text="${ticket.seatLabel}">A1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card card-body">
+                    <div style="font-weight:700;margin-bottom:16px">Thanh toán</div>
+
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+                        <span style="color:var(--text-dim)">Tổng tiền vé</span>
+                        <span th:text="${#numbers.formatInteger(booking.totalAmount, 1, 'COMMA')} + ' đ'">0 đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"
+                         th:if="${booking.discountAmount != null and booking.discountAmount > 0}">
+                        <span style="color:var(--text-dim)">Khuyến mãi</span>
+                        <span style="color:var(--green)"
+                              th:text="'-' + ${#numbers.formatInteger(booking.discountAmount, 1, 'COMMA')} + ' đ'">0 đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:800;
+                        border-top:1px solid var(--border);padding-top:12px;margin-top:12px">
+                        <span>Tổng cộng</span>
+                        <span style="color:var(--gold)"
+                              th:text="${#numbers.formatInteger(booking.finalAmount, 1, 'COMMA')} + ' đ'">0 đ</span>
+                    </div>
+
+                    <form th:if="${booking.status == 'pending'}" th:action="@{/booking/{code}/confirm(code=${booking.code})}"
+                          method="post" style="margin-top:22px">
+                        <div class="form-group">
+                            <label for="promotionCode">Mã khuyến mãi (không bắt buộc)</label>
+                            <input type="text" id="promotionCode" name="promotionCode" placeholder="Nhập mã, ví dụ CINEX10">
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Phương thức thanh toán</label>
+                            <select id="paymentMethod" name="paymentMethod">
+                                <option value="cash">Tiền mặt tại quầy</option>
+                                <option value="card">Thẻ tín dụng / ghi nợ</option>
+                                <option value="transfer">Chuyển khoản ngân hàng</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-block" type="submit">Xác nhận thanh toán</button>
+                    </form>
+
+                    <div class="flash flash-success" style="margin-top:20px" th:if="${booking.status == 'confirmed'}">
+                        Đơn đặt vé đã được thanh toán thành công. Bạn có thể xem vé tại mục "Vé của tôi".
+                    </div>
+
+                    <form th:if="${booking.status == 'pending'}"
+                          th:action="@{/booking/{code}/cancel(code=${booking.code})}" method="post"
+                          style="margin-top:12px">
+                        <button class="btn btn-outline btn-block" type="submit">Huỷ đơn và trả lại ghế</button>
+                    </form>
+                </div>
+
+                <div class="card card-body" style="margin-top:16px" th:if="${bill != null}">
+                    <div style="font-weight:700;margin-bottom:10px">Hoá đơn</div>
+                    <div style="display:flex;justify-content:space-between;font-size:13.5px;color:var(--text-dim)">
+                        <span>Mã hoá đơn</span>
+                        <span class="ticket-code" th:text="${bill.code}">BL000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chỉnh sửa khuyến mãi')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Chỉnh sửa khuyến mãi</h2>
+                <p class="section-sub" th:text="${promotion.code}">CODE</p>
+            </div>
+            <a class="btn btn-outline btn-sm" th:href="@{/admin/promotions}">← Quay lại</a>
+        </div>
+
+        <div class="card card-body" style="max-width:720px">
+            <dl class="kv">
+                <dt>Tên chương trình</dt>
+                <dd th:text="${promotion.title}">—</dd>
+                <dt>Mô tả</dt>
+                <dd th:text="${promotion.description}">—</dd>
+                <dt>Loại chiết khấu</dt>
+                <dd th:text="${promotion.discountType == 'percent' ? 'Phần trăm' : 'Số tiền cố định'}">—</dd>
+                <dt>Giá trị</dt>
+                <dd th:text="${promotion.discountValue}">—</dd>
+                <dt>Giảm tối đa</dt>
+                <dd th:text="${promotion.maxDiscount != null ? #numbers.formatInteger(promotion.maxDiscount, 1, 'COMMA') + ' đ' : 'Không giới hạn'}">—</dd>
+                <dt>Đơn tối thiểu</dt>
+                <dd th:text="${#numbers.formatInteger(promotion.minAmount, 1, 'COMMA')} + ' đ'">—</dd>
+                <dt>Thời gian</dt>
+                <dd>
+                    <span th:text="${promotion.startDate != null ? #temporals.format(promotion.startDate, 'dd/MM/yyyy') : '—'}"></span>
+                    →
+                    <span th:text="${promotion.endDate != null ? #temporals.format(promotion.endDate, 'dd/MM/yyyy') : '—'}"></span>
+                </dd>
+                <dt>Đã sử dụng</dt>
+                <dd th:text="${promotion.usedCount} + ' / ' + (${promotion.usageLimit != null} ? ${promotion.usageLimit} : '∞')">—</dd>
+                <dt>Trạng thái</dt>
+                <dd th:text="${promotion.isActive} ? 'Đang chạy' : 'Tạm dừng'">—</dd>
+            </dl>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

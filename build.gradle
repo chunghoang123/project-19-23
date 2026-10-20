@@ -1,0 +1,73 @@
+// =============================================================================
+//  build.gradle - CineX (Spring Boot) - Java 17
+//  Build:  ./gradlew bootJar -x test  ->  build/libs/cinex.jar
+// =============================================================================
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.16'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.cinex'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// File JAR sau khi build: build/libs/cinex.jar
+tasks.named('bootJar') {
+    archiveFileName = 'cinex.jar'
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+// =============================================================================
+//  Sinh tài liệu SRS (100% Java, không cần Python/Node/LibreOffice)
+//  ./gradlew srs   ->  docs/SRS_Cinex_v1.0.{md,html,docx} + docs/img/*.png
+// =============================================================================
+sourceSets {
+    srs {
+        java.srcDirs = ['docs']
+    }
+}
+
+tasks.register('srs', JavaExec) {
+    group = 'documentation'
+    description = 'Sinh lại tài liệu SRS và 5 sơ đồ trong thư mục docs/'
+    dependsOn tasks.named('srsClasses')
+    classpath = sourceSets.srs.runtimeClasspath
+    mainClass = 'SrsGenerator'
+    args projectDir.absolutePath + '/docs'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

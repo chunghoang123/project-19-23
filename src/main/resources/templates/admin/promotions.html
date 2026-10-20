@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý khuyến mãi')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Quản lý khuyến mãi</h2>
+                <p class="section-sub">Tạo và theo dõi các mã ưu đãi đang chạy</p>
+            </div>
+            <a class="btn btn-outline btn-sm" th:href="@{/admin}">← Về bảng điều khiển</a>
+        </div>
+
+        <div class="card card-body">
+            <table class="table">
+                <thead>
+                <tr><th>Mã</th><th>Tiêu đề</th><th>Chiết khấu</th><th>Đơn tối thiểu</th><th>Hạn dùng</th><th>Đã dùng</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="promo : ${promotions}">
+                    <td class="ticket-code" th:text="${promo.code}">CODE</td>
+                    <td th:text="${promo.title}">—</td>
+                    <td>
+                        <span th:if="${promo.discountType == 'percent'}"
+                              th:text="${promo.discountValue} + '%'">—</span>
+                        <span th:if="${promo.discountType == 'fixed'}"
+                              th:text="${#numbers.formatInteger(promo.discountValue, 1, 'COMMA')} + ' đ'">—</span>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(promo.minAmount, 1, 'COMMA')} + ' đ'">—</td>
+                    <td th:text="${promo.endDate != null ? #temporals.format(promo.endDate, 'dd/MM/yyyy') : '—'}">—</td>
+                    <td th:text="${promo.usedCount} + (${promo.usageLimit != null} ? ' / ' + ${promo.usageLimit} : '')">0</td>
+                    <td>
+                        <span class="badge" th:if="${promo.isActive}" style="color:var(--green)">Đang chạy</span>
+                        <span class="badge" th:unless="${promo.isActive}" style="color:var(--brand-soft)">Tạm dừng</span>
+                    </td>
+                </tr>
+                <tr th:if="${promotions == null or promotions.isEmpty()}">
+                    <td colspan="7" style="text-align:center;color:var(--text-dim)">Chưa có khuyến mãi nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

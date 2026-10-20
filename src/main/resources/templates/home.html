@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Trang chủ')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('home')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" th:if="${nowShowing != null and !nowShowing.isEmpty()}">
+        <img class="hero-img" th:if="${nowShowing[0].backdrop != null}"
+             th:src="${nowShowing[0].backdrop}" th:alt="${nowShowing[0].title}">
+        <div class="hero-content">
+            <span class="badge badge-new">Đang chiếu</span>
+            <h2 th:text="${nowShowing[0].title}">Phim đang chiếu</h2>
+            <p th:text="${#strings.length(nowShowing[0].description) > 180
+                          ? #strings.substring(nowShowing[0].description, 0, 180) + '...'
+                          : nowShowing[0].description}">Mô tả</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <a class="btn btn-primary" th:href="@{/movies/{id}(id=${nowShowing[0].id})}">Xem lịch chiếu</a>
+                <a class="btn btn-outline" th:href="@{/movies}">Khám phá phim</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================== ĐANG CHIẾU ========================= -->
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Đang chiếu</h2>
+                <p class="section-sub">Những bộ phim đang được chiếu tại hệ thống rạp CineX</p>
+            </div>
+            <a class="section-link" th:href="@{/movies}">Xem tất cả →</a>
+        </div>
+
+        <div class="movie-grid" th:if="${nowShowing != null and !nowShowing.isEmpty()}">
+            <a class="card movie-card" th:each="movie : ${nowShowing}"
+               th:href="@{/movies/{id}(id=${movie.id})}">
+                <img class="poster" th:if="${movie.poster != null}" th:src="${movie.poster}"
+                     th:alt="${movie.title}" loading="lazy">
+                <div class="fallback" th:if="${movie.poster == null}" th:text="${movie.title}">?</div>
+                <div class="card-body">
+                    <h3 th:text="${movie.title}">Tên phim</h3>
+                    <div class="movie-meta">
+                        <span class="badge badge-rating" th:text="${movie.rating}">P</span>
+                        <span th:text="${movie.duration} + ' phút'">120 phút</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="empty" th:if="${nowShowing == null or nowShowing.isEmpty()}">
+            <div class="empty-icon">🎬</div>
+            <div>Hiện chưa có phim nào đang chiếu</div>
+        </div>
+    </section>
+
+    <!-- ========================== SẮP CHIẾU ========================= -->
+    <section class="section" th:if="${upcoming != null and !upcoming.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Sắp chiếu</h2>
+                <p class="section-sub">Các bộ phim sẽ ra rạp trong thời gian tới</p>
+            </div>
+        </div>
+        <div class="movie-grid">
+            <a class="card movie-card" th:each="movie : ${upcoming}"
+               th:href="@{/movies/{id}(id=${movie.id})}">
+                <img class="poster" th:if="${movie.poster != null}" th:src="${movie.poster}"
+                     th:alt="${movie.title}" loading="lazy">
+                <div class="fallback" th:if="${movie.poster == null}" th:text="${movie.title}">?</div>
+                <div class="card-body">
+                    <h3 th:text="${movie.title}">Tên phim</h3>
+                    <div class="movie-meta">
+                        <span class="badge" th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ======================= LỊCH CHIẾU HÔM NAY ==================== -->
+    <section class="section" th:if="${todayShowtimes != null and !todayShowtimes.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Lịch chiếu hôm nay</h2>
+                <p class="section-sub">Các suất chiếu đang mở bán</p>
+            </div>
+            <a class="section-link" th:href="@{/showtimes}">Xem lịch đầy đủ →</a>
+        </div>
+        <div class="card card-body">
+            <div class="st-cinema" th:each="showtime : ${todayShowtimes}">
+                <div class="st-cinema-name">
+                    <span th:text="${showtime.cinema.name}">Rạp</span>
+                    · <span th:text="${showtime.movie.title}">Phim</span>
+                    · <span th:text="${showtime.screen.name}">Phòng</span>
+                </div>
+                <div class="st-times">
+                    <a class="st-time" th:href="@{/booking/seats/{id}(id=${showtime.id})}"
+                       th:text="${#temporals.format(showtime.startTime, 'HH:mm')}">19:00</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================== KHUYẾN MÃI ========================= -->
+    <section class="section" th:if="${promotions != null and !promotions.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Khuyến mãi</h2>
+                <p class="section-sub">Ưu đãi dành riêng cho khách hàng CineX</p>
+            </div>
+        </div>
+        <div class="movie-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+            <div class="card card-body" th:each="promo : ${promotions}">
+                <span class="badge badge-new" th:text="${promo.code}">CODE</span>
+                <h3 style="margin:10px 0 6px;font-size:16px" th:text="${promo.title}">Tiêu đề</h3>
+                <p style="color:var(--text-dim);font-size:13.5px;margin:0 0 12px"
+                   th:text="${promo.description}">Mô tả</p>
+                <div style="color:var(--gold);font-weight:700">
+                    <span th:if="${promo.discountType == 'percent'}"
+                          th:text="'Giảm ' + ${promo.discountValue} + '%'">Giảm 10%</span>
+                    <span th:if="${promo.discountType == 'fixed'}"
+                          th:text="'Giảm ' + ${#numbers.formatInteger(promo.discountValue, 1, 'COMMA')} + ' đ'">Giảm 50.000đ</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================== RẠP CINEX ========================= -->
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Hệ thống rạp CineX</h2>
+                <p class="section-sub" th:text="${cinemas != null ? cinemas.size() + ' chi nhánh trên toàn quốc' : ''}"></p>
+            </div>
+            <a class="section-link" th:href="@{/cinemas}">Xem tất cả rạp →</a>
+        </div>
+        <div class="movie-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+            <a class="card card-body" th:each="cinema : ${cinemasTop}"
+               th:href="@{/cinemas/{id}(id=${cinema.id})}">
+                <div style="font-weight:700;margin-bottom:6px" th:text="${cinema.name}">Rạp</div>
+                <div style="color:var(--text-dim);font-size:13px" th:text="${cinema.address}">Địa chỉ</div>
+                <div style="margin-top:10px">
+                    <span class="badge" th:text="${cinema.city}">TP.HCM</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

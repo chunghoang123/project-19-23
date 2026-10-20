@@ -1,0 +1,89 @@
+# =============================================================================
+#  docker-compose.yml - CineX (Spring Boot)
+#  - mysql  : database, không publish cổng ra ngoài (chỉ trong mạng nội bộ)
+#  - app    : Spring Boot, phục vụ cả web Thymeleaf lẫn REST API
+#  - nginx  : reverse proxy, publish cổng ${APP_PORT} ra cổng 80 của container
+#  Chạy: docker compose --env-file .env up -d --build
+# =============================================================================
+name: ${COMPOSE_PROJECT_NAME:-cinex}
+
+services:
+  # ---------------------------------------------------------------- MySQL
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cinex}
+      MYSQL_USER: ${MYSQL_USER:-cinex}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - db-net
+
+  # ---------------------------------------------------------------- Spring Boot
+  app:
+    build:
+      context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-local}
+    image: ${APP_IMAGE:-cinex-app}:${APP_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: ${MYSQL_DATABASE:-cinex}
+      DB_USER: ${MYSQL_USER:-cinex}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      APP_PORT: "8080"
+      TZ: Asia/Ho_Chi_Minh
+      # ----- Tích hợp bên ngoài (để trống nếu chưa dùng) -----
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      TMDB_API_URL: ${TMDB_API_URL:-https://api.themoviedb.org/3}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID:-}
+      PAYOS_API_KEY: ${PAYOS_API_KEY:-}
+      PAYOS_CHECKSUM_KEY: ${PAYOS_CHECKSUM_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_MODEL: ${NVIDIA_MODEL:-meta/llama-3.1-8b-instruct}
+      NVIDIA_API_URL: ${NVIDIA_API_URL:-https://integrate.api.nvidia.com/v1/chat/completions}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL:-}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - db-net
+      - proxy-net
+
+  # ---------------------------------------------------------------- Nginx
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+  db-net:
+
+volumes:
+  mysql_data:

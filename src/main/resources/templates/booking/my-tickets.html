@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Vé của tôi')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('home')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Vé của tôi</h2>
+                <p class="section-sub">Lịch sử đặt vé và trạng thái thanh toán</p>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="ticket" th:each="booking : ${bookings}">
+            <div style="flex:1">
+                <div style="font-weight:700;margin-bottom:4px" th:text="${booking.showtime.movie.title}">Phim</div>
+                <div style="color:var(--text-dim);font-size:13.5px">
+                    <span th:text="${booking.showtime.cinema.name}">Rạp</span>
+                    ·
+                    <span th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm dd/MM/yyyy')}">—</span>
+                </div>
+                <div style="margin-top:8px;font-size:13px;color:var(--text-dim)">
+                    Mã đơn: <span class="ticket-code" th:text="${booking.code}">BK000</span>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-weight:800;font-size:18px;color:var(--gold)"
+                     th:text="${#numbers.formatInteger(booking.finalAmount, 1, 'COMMA')} + ' đ'">0 đ</div>
+                <div style="margin-top:6px">
+                    <span class="badge" th:if="${booking.status == 'confirmed'}" style="color:var(--green)">Đã thanh toán</span>
+                    <span class="badge" th:if="${booking.status == 'pending'}" style="color:var(--gold)">Chờ thanh toán</span>
+                    <span class="badge" th:if="${booking.status == 'cancelled'}" style="color:var(--brand-soft)">Đã huỷ</span>
+                </div>
+                <a class="btn btn-sm btn-outline" style="margin-top:10px"
+                   th:href="@{/booking/{code}(code=${booking.code})}">Chi tiết</a>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${bookings == null or bookings.isEmpty()}">
+            <div class="empty-icon">🎟️</div>
+            <div>Bạn chưa có đơn đặt vé nào</div>
+            <a class="btn btn-primary" style="margin-top:16px" th:href="@{/movies}">Xem phim đang chiếu</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

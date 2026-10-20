@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${cinema.name})}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('cinemas')}"></header>
+
+<main class="container">
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title" th:text="${cinema.name}">Rạp</h2>
+                <p class="section-sub" th:text="${cinema.address}">Địa chỉ</p>
+                <div style="margin-top:10px">
+                    <span class="badge" th:text="${cinema.brand}">CineX</span>
+                    <span class="badge" th:if="${cinema.city != null}" th:text="${cinema.city}">TP.HCM</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="font-size:17px;margin:30px 0 14px">Lịch chiếu sắp tới</h3>
+
+        <div class="st-cinema" th:each="showtime : ${showtimes}">
+            <div class="st-cinema-name">
+                <span th:text="${showtime.screen.name}">Phòng</span>
+                · <span th:text="${showtime.movie.title}">Phim</span>
+                · <span th:text="${#temporals.format(showtime.startTime, 'dd/MM/yyyy')}">01/01/2026</span>
+            </div>
+            <div class="st-times">
+                <a class="st-time" th:href="@{/booking/seats/{id}(id=${showtime.id})}"
+                   th:text="${#temporals.format(showtime.startTime, 'HH:mm')}">19:00</a>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${showtimes == null or showtimes.isEmpty()}">
+            <div class="empty-icon">📅</div>
+            <div>Hiện chưa có suất chiếu tại rạp này</div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
