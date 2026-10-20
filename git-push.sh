@@ -1,59 +1,53 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Đẩy toàn bộ dự án lên GitHub - tự thử cả 2 cách.
+#  Đẩy toàn bộ dự án lên GitHub - tự thử SSH trước, fallback HTTPS.
 #
 #    ./git-push.sh
 #
-#  Cách 1 (ưu tiên): SSH - hoạt động nếu đã thêm public key vào tài khoản
-#                    https://github.com/settings/ssh/new
-#  Cách 2: HTTPS + Personal Access Token (Username: chunghoang123)
-#
-#  Lưu ý: với HTTPS, Password phải là PAT và token phải có
-#  quyền "Contents: Read and write" cho repo này.
+#  SSH  : cần thêm public key tại https://github.com/settings/ssh/new
+#          (key đã lưu ở ~/github_ssh_key.pub)
+#  HTTPS: Username = chunghoang123, Password = Personal Access Token
+#          token BẮT BUỘC có scope: public_repo (repo này là public)
 # =============================================================================
 set -uo pipefail
-
 cd "$(dirname "$0")"
 
 REPO="chunghoang123/project-19-23"
-HTTPS_URL="https://github.com/${REPO}.git"
-SSH_URL="git@github.com:${REPO}.git"
 
 echo "╔════════════════════════════════════════════════════════════╗"
 echo "║  Đẩy dự án CineX lên GitHub                                 ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo
-echo "Nhánh        : $(git branch --show-current)"
-echo "Commit       : $(git log --oneline -1)"
-echo "Số file      : $(git ls-files | wc -l)"
+echo "Nhánh   : $(git branch --show-current)"
+echo "Commit  : $(git log --oneline -1)"
+echo "Số file : $(git ls-files | wc -l)"
 echo
 
-# ---------------------------------------------------------------- SSH
-if ssh -o BatchMode=yes -o ConnectTimeout=10 -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    echo "→ Phát hiện SSH key hợp lệ, chuyển sang đẩy bằng SSH"
-    git remote set-url origin "$SSH_URL"
-    git push -u origin main && { echo; echo "✔ Đẩy xong (SSH): https://github.com/${REPO}"; exit 0; }
-    echo "✗ SSH push thất bại, chuyển sang HTTPS"
+# ------------------------------------------------------------------ SSH
+if ssh -o BatchMode=yes -o ConnectTimeout=10 -T git@github.com 2>&1 | grep -qi "successfully authenticated"; then
+    echo "→ SSH key hợp lệ, đẩy bằng SSH"
+    git remote set-url origin "git@github.com:${REPO}.git"
+    if git push -u origin main; then
+        echo; echo "✔ Đẩy xong (SSH): https://github.com/${REPO}"; exit 0
+    fi
+    echo "✗ SSH push lỗi, thử HTTPS"
 fi
 
-# --------------------------------------------------------------- HTTPS
-echo "→ Dùng HTTPS + Personal Access Token"
-git remote set-url origin "$HTTPS_URL"
+# ---------------------------------------------------------------- HTTPS
+git remote set-url origin "https://github.com/${REPO}.git"
+echo "→ HTTPS + Personal Access Token"
+echo "    Username : chunghoang123"
+echo "    Password : PAT  (token phải có scope 'public_repo')"
 echo
-echo "  Username : chunghoang123"
-echo "  Password : Personal Access Token (PAT)"
-echo "  Token cần quyền: Contents → Read and write cho repo ${REPO}"
-echo "  (nếu báo 403: sửa quyền tại https://github.com/settings/personal-access-tokens)"
+echo "  Kiểm tra scope của token trước khi push:"
+echo "    curl -sI -H \"Authorization: Bearer <TOKEN>\" https://api.github.com/user | grep -i x-oauth-scopes"
+echo "    → phải hiện 'public_repo' hoặc 'repo' (rỗng = chưa tick scope)"
 echo
-
 if git push -u origin main; then
-    echo
-    echo "✔ Đẩy xong: https://github.com/${REPO}"
+    echo; echo "✔ Đẩy xong: https://github.com/${REPO}"
 else
-    echo
-    echo "✗ Push thất bại. Kiểm tra 2 khả năng:"
-    echo "   1. PAT chưa có quyền 'Contents: Read and write' cho repo này"
-    echo "      → https://github.com/settings/personal-access-tokens"
-    echo "   2. Chưa thêm SSH key → https://github.com/settings/ssh/new"
+    echo; echo "✗ 403 = token chưa có quyền ghi. Sửa scope:"
+    echo "   https://github.com/settings/tokens/new  → tick 'public_repo'"
+    echo "   hoặc thêm SSH key: https://github.com/settings/ssh/new"
     exit 1
 fi
