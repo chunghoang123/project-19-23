@@ -1,0 +1,17 @@
+# ===== Line ending =====
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+gradlew text eol=lf
+*.java text
+*.html text
+*.css text
+*.js text
+*.yml text
+*.sql text
+*.md text
+*.docx binary
+*.jar binary
+*.png binary
