@@ -15,9 +15,11 @@ spring:
     name: ${APP_NAME:CineX}
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:cinex}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
+    # Giá trị mặc định dành cho môi trường dev (MySQL local, database cinex_local).
+    # Khi deploy, biến môi trường DB_* trong .env / docker-compose.yml sẽ ghi đè các giá trị này.
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:cinex_local}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
     username: ${DB_USER:cinex}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:cinex}
     hikari:
       initialization-fail-timeout: 60000
       maximum-pool-size: 20

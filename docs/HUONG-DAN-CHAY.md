@@ -20,6 +20,12 @@ docker --version   # nếu dùng Docker
 
 ## 1. Chuẩn bị file cấu hình `.env`
 
+> **Nếu bạn chỉ muốn chạy thử ở máy local** thì có thể **bỏ qua bước này**:
+> `application.yml` đã có sẵn giá trị mặc định cho MySQL local
+> (`DB_HOST=localhost`, `DB_NAME=cinex_local`, `DB_USER=cinex`, `DB_PASSWORD=cinex`),
+> nên bấm **Run** trong IntelliJ hoặc `./gradlew bootRun` là chạy được ngay.
+> File `.env` chỉ cần thiết khi dùng Docker Compose hoặc khi muốn bật tích hợp ngoài.
+
 ```bash
 cp .env.example .env        # Linux/macOS
 copy .env.example .env      # Windows PowerShell
@@ -28,7 +34,7 @@ copy .env.example .env      # Windows PowerShell
 Mở `.env` và điền các giá trị cần thiết:
 
 ```bash
-# ----- Database (khi chạy trực tiếp bằng Gradle) -----
+# ----- Database (ghi đè giá trị mặc định khi chạy trực tiếp bằng Gradle) -----
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_NAME=cinex_local
@@ -45,6 +51,9 @@ PAYOS_CHECKSUM_KEY=...
 
 > `.env` đã nằm trong `.gitignore` — **không** commit key thật lên Git.
 > Kiểm tra ứng dụng đã nhận được key chưa: `GET /api/public/integrations`.
+>
+> **Thứ tự ưu tiên**: biến môi trường (`DB_*`) > giá trị mặc định trong `application.yml`.
+> Docker Compose luôn truyền `DB_*` qua `environment:` nên production không bị ảnh hưởng.
 
 ## 2. Chọn cách chạy
 
@@ -104,9 +113,18 @@ Script `run-local.ps1` tự đọc toàn bộ biến trong `.env` (DB, TMDB, Pay
 
 **B4. Hoặc chạy bằng IntelliJ IDEA**
 
-Repo có sẵn run configuration tại `.run/CineX Local.run.xml` (chọn **CineX Local** trong thanh công cụ Run).
-Nếu IntelliJ báo thiếu module, vào *Run → Edit Configurations → CineX Local* và chọn module `cinex.main`,
-sau đó kiểm tra tab *Environment variables* có đủ `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+Cách nhanh nhất: mở thư mục dự án, chờ Gradle sync xong rồi bấm **Run** trên
+`CinexApplication` — app dùng sẵn giá trị mặc định cho MySQL local nên không cần cấu hình gì.
+
+Repo có sẵn run configuration **CineX Local** tại `.run/CineX Local.run.xml`
+(chọn trong thanh công cụ Run) dùng cho trường hợp muốn chạy song song 2 cổng
+hoặc đổi cấu hình DB. Nếu IntelliJ báo thiếu module, vào *Run → Edit Configurations →
+CineX Local* và chọn module `cinex.main`, sau đó kiểm tra tab *Environment variables* có đủ
+`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+
+> **Lỗi thường gặp**: `Access denied for user 'cinex'@'localhost' (using password: NO)`
+> → app không có `DB_PASSWORD`. Chạy bằng `run-local.ps1` (đọc `.env`) hoặc thêm các biến
+> `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` vào *Environment variables* của run configuration.
 
 **B5. Build jar chạy production**
 
