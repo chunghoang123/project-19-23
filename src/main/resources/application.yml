@@ -1,0 +1,84 @@
+# =============================================================================
+#  application.yml - CineX (Spring Boot)
+#  Mọi giá trị nhạy cảm đọc từ biến môi trường
+# =============================================================================
+server:
+  port: ${APP_PORT:8080}
+  error:
+    include-message: always
+  servlet:
+    session:
+      timeout: 60m
+
+spring:
+  application:
+    name: ${APP_NAME:CineX}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:cinex}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
+    username: ${DB_USER:cinex}
+    password: ${DB_PASSWORD:}
+    hikari:
+      initialization-fail-timeout: 60000
+      maximum-pool-size: 20
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    # Bật open-in-view vì template Thymeleaf cần truy cập quan hệ lazy
+    # (showtime.movie, booking.user...) trong lúc render.
+    open-in-view: true
+    properties:
+      hibernate:
+        jdbc.time_zone: Asia/Ho_Chi_Minh
+        format_sql: false
+
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+app:
+  name: ${APP_NAME:CineX}
+  # Bật/tắt nạp dữ liệu mẫu (rạp, phòng, ghế, phim, suất chiếu) khi khởi động
+  seed-enabled: ${APP_SEED_ENABLED:true}
+  seed-admin-email: ${APP_SEED_ADMIN_EMAIL:admin@cinex.vn}
+  seed-admin-password: ${APP_SEED_ADMIN_PASSWORD:admin123}
+  # Số ngày phát hành suất chiếu tự động
+  showtime-days-ahead: ${APP_SHOWTIME_DAYS_AHEAD:7}
+  # Số phút giữ ghế trước khi đơn chờ thanh toán tự động được giải phóng
+  hold-expire-minutes: ${APP_HOLD_EXPIRE_MINUTES:15}
+  # Chu kỳ quét đơn giữ ghế quá hạn (milli giây)
+  hold-expire-interval-ms: ${APP_HOLD_EXPIRE_INTERVAL_MS:60000}
+
+  # ---------------------------------------------------------------------
+  #  Tích hợp bên ngoài - để trống ở khung, điền khoá thật vào .env khi cần.
+  #  Không commit file .env lên Git.
+  # ---------------------------------------------------------------------
+  integration:
+    tmdb-api-key: ${TMDB_API_KEY:}
+    tmdb-api-url: ${TMDB_API_URL:https://api.themoviedb.org/3}
+    tmdb-language: ${TMDB_LANGUAGE:vi-VN}
+    tmdb-region: ${TMDB_REGION:VN}
+    youtube-api-key: ${YOUTUBE_API_KEY:}
+    payos-client-id: ${PAYOS_CLIENT_ID:}
+    payos-api-key: ${PAYOS_API_KEY:}
+    payos-checksum-key: ${PAYOS_CHECKSUM_KEY:}
+    payos-base-url: ${PAYOS_BASE_URL:https://api-merchant.payos.vn}
+    nvidia-api-key: ${NVIDIA_API_KEY:}
+    nvidia-model: ${NVIDIA_MODEL:meta/llama-3.1-8b-instruct}
+    nvidia-api-url: ${NVIDIA_API_URL:https://integrate.api.nvidia.com/v1/chat/completions}
+    google-client-id: ${GOOGLE_CLIENT_ID:}
+    firebase-project-id: ${FIREBASE_PROJECT_ID:}
+    firebase-client-email: ${FIREBASE_CLIENT_EMAIL:}
+    firebase-private-key: ${FIREBASE_PRIVATE_KEY:}
+
+logging:
+  level:
+    root: INFO
+    com.cinex: INFO
+    org.hibernate.SQL: WARN

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý phim')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Quản lý phim</h2>
+                <p class="section-sub">Danh sách phim đang được phân phối tại hệ thống rạp</p>
+            </div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+                <form th:if="${tmdbEnabled}" th:action="@{/admin/movies/sync-tmdb}" method="post"
+                      style="display:flex;gap:8px;align-items:center">
+                    <select name="source" class="input" style="width:auto">
+                        <option value="now_playing">Mới ra rạp</option>
+                        <option value="popular">Đang phổ biến</option>
+                        <option value="trending">Thị tranh tuần</option>
+                        <option value="upcoming">Sắp chiếu</option>
+                    </select>
+                    <input type="number" name="pages" value="1" min="1" max="5"
+                           style="width:70px" title="Số trang đồng bộ">
+                    <button class="btn btn-outline btn-sm" type="submit">Đồng bộ từ TMDB</button>
+                </form>
+                <a class="btn btn-outline btn-sm" th:href="@{/admin}">← Về bảng điều khiển</a>
+            </div>
+        </div>
+
+        <div class="card card-body">
+            <table class="table">
+                <thead>
+                <tr><th>Ảnh</th><th>Tên phim</th><th>Thể loại</th><th>Thời lượng</th><th>Ra mắt</th><th>Giá vé</th><th>Độ phủ</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="movie : ${movies.content}">
+                    <td>
+                        <img th:if="${movie.poster != null}" th:src="${movie.poster}" th:alt="${movie.title}"
+                             style="width:40px;border-radius:6px">
+                    </td>
+                    <td>
+                        <a th:href="@{/movies/{id}(id=${movie.id})}" style="font-weight:600"
+                           th:text="${movie.title}">—</a>
+                        <div style="color:var(--text-dim);font-size:12px" th:text="${movie.director}">—</div>
+                    </td>
+                    <td style="font-size:13px" th:text="${movie.genre}">—</td>
+                    <td th:text="${movie.duration} + 'p'">—</td>
+                    <td th:text="${movie.releaseDate != null ? #temporals.format(movie.releaseDate, 'dd/MM/yyyy') : '—'}">—</td>
+                    <td th:text="${#numbers.formatInteger(movie.ticketPrice, 1, 'COMMA')} + ' đ'">—</td>
+                    <td th:text="${movie.popularity}">—</td>
+                </tr>
+                <tr th:if="${movies == null or movies.isEmpty()}">
+                    <td colspan="7" style="text-align:center;color:var(--text-dim)">Chưa có phim nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" th:if="${movies != null and movies.totalPages > 1}">
+            <a th:if="${!movies.first}" th:href="@{/admin/movies(page=${movies.number - 1})}">←</a>
+            <span class="active" th:text="${movies.number + 1}">1</span>
+            <a th:if="${!movies.last}" th:href="@{/admin/movies(page=${movies.number + 1})}">→</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

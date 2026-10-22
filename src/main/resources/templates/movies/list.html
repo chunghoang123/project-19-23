@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Danh sách phim')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('movies')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Danh sách phim</h2>
+                <p class="section-sub">Tìm phim bạn muốn xem tại hệ thống rạp CineX</p>
+            </div>
+            <form th:action="@{/movies}" method="get" style="display:flex;gap:8px">
+                <input type="search" name="q" th:value="${keyword}" placeholder="Tìm theo tên hoặc thể loại..."
+                       style="width:280px">
+                <button class="btn btn-outline" type="submit">Tìm</button>
+            </form>
+        </div>
+
+        <div class="movie-grid" th:if="${movies != null and !movies.isEmpty()}">
+            <a class="card movie-card" th:each="movie : ${movies.content}"
+               th:href="@{/movies/{id}(id=${movie.id})}">
+                <img class="poster" th:if="${movie.poster != null}" th:src="${movie.poster}"
+                     th:alt="${movie.title}" loading="lazy">
+                <div class="fallback" th:if="${movie.poster == null}" th:text="${movie.title}">?</div>
+                <div class="card-body">
+                    <h3 th:text="${movie.title}">Tên phim</h3>
+                    <div class="movie-meta">
+                        <span class="badge badge-rating" th:text="${movie.rating}">P</span>
+                        <span th:text="${movie.duration} + ' phút'">120 phút</span>
+                    </div>
+                    <div class="movie-meta" style="margin-top:5px"
+                         th:text="${movie.genre != null ? movie.genre : ''}">Thể loại</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="empty" th:if="${movies != null and movies.isEmpty()}">
+            <div class="empty-icon">🔍</div>
+            <div>Không tìm thấy phim nào phù hợp</div>
+        </div>
+
+        <div class="pagination" th:if="${movies != null and movies.totalPages > 1}">
+            <a th:if="${!movies.first}"
+               th:href="@{/movies(q=${keyword},page=${movies.number - 1})}">←</a>
+            <span class="active" th:text="${movies.number + 1}">1</span>
+            <a th:if="${!movies.last}"
+               th:href="@{/movies(q=${keyword},page=${movies.number + 1})}">→</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

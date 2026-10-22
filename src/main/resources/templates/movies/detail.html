@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${movie.title})}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('movies')}"></header>
+
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="section">
+        <div class="detail-layout">
+            <div>
+                <div class="detail-poster">
+                    <img th:if="${movie.poster != null}" th:src="${movie.poster}" th:alt="${movie.title}">
+                </div>
+                <button class="btn btn-primary btn-block" style="margin-top:16px"
+                        type="button" th:if="${movie.trailerUrl != null}"
+                        th:attr="data-trailer-open='1',data-trailer-url=${movie.trailerUrl},data-trailer-title=${movie.title}">
+                    ▶ Xem trailer
+                </button>
+                <div class="btn btn-block btn-disabled" style="margin-top:16px"
+                     th:if="${movie.trailerUrl == null}">
+                    ▶ Trailer đang được cập nhật
+                </div>
+            </div>
+
+            <div>
+                <h1 class="detail-title" th:text="${movie.title}">Tên phim</h1>
+
+                <div class="movie-meta" style="margin-bottom:18px">
+                    <span class="badge badge-rating" th:text="${movie.rating}">P</span>
+                    <span class="badge" th:text="${movie.duration} + ' phút'">120 phút</span>
+                    <span class="badge" th:text="${movie.genre}">Hành động</span>
+                    <span class="badge" th:if="${movie.releaseDate != null}"
+                          th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}">01/01/2026</span>
+                </div>
+
+                <dl class="kv">
+                    <dt>Đạo diễn</dt>
+                    <dd th:text="${movie.director != null ? movie.director : 'Đang cập nhật'}">—</dd>
+                    <dt>Diễn viên</dt>
+                    <dd th:text="${movie.castMembers != null ? movie.castMembers : 'Đang cập nhật'}">—</dd>
+                    <dt>Ngôn ngữ</dt>
+                    <dd th:text="${movie.language == 'en' ? 'Tiếng Anh' : (movie.language == 'ko' ? 'Tiếng Hàn' : 'Tiếng Việt')}">—</dd>
+                    <dt>Giá vé</dt>
+                    <dd>
+                        <span th:text="${#numbers.formatInteger(movie.ticketPrice, 1, 'COMMA')} + ' đ'">75.000 đ</span>
+                        ·
+                        <span style="color:var(--gold)"
+                              th:text="'VIP ' + ${#numbers.formatInteger(movie.vipPrice, 1, 'COMMA')} + ' đ'">VIP</span>
+                    </dd>
+                </dl>
+
+                <h3 style="font-size:17px;margin:26px 0 10px">Nội dung</h3>
+                <p style="color:var(--text-dim);line-height:1.75" th:text="${movie.description}">Nội dung</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================= SUẤT CHIẾU ========================= -->
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Lịch chiếu</h2>
+                <p class="section-sub">Chọn suất chiếu để tiến hành đặt vé</p>
+            </div>
+        </div>
+
+        <div class="st-cinema" th:each="showtime : ${showtimes}">
+            <div class="st-cinema-name">
+                <span th:text="${showtime.cinema.name}">Rạp</span>
+                · <span th:text="${showtime.screen.name}">Phòng</span>
+                · <span th:text="${#temporals.format(showtime.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(showtime.endTime, 'HH:mm')}">19:00</span>
+                · <span th:text="${#temporals.format(showtime.startTime, 'dd/MM/yyyy')}">01/01/2026</span>
+            </div>
+            <div class="st-times">
+                <a class="st-time" th:href="@{/booking/seats/{id}(id=${showtime.id})}">Chọn ghế</a>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${showtimes == null or showtimes.isEmpty()}">
+            <div class="empty-icon">📅</div>
+            <div>Hiện chưa có suất chiếu cho phim này</div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<div th:replace="~{fragments/layout :: trailerModal}"></div>
+
+</body>
+</html>

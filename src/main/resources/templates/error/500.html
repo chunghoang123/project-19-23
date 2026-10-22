@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đã xảy ra lỗi')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('')}"></header>
+
+<main class="container">
+    <div class="empty" style="padding:100px 20px">
+        <div class="empty-icon">⚠️</div>
+        <h1 style="font-size:56px;margin:0">500</h1>
+        <p style="margin:8px 0 24px">Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau ít phút.</p>
+        <a class="btn btn-primary" th:href="@{/}">Về trang chủ</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

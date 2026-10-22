@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Trang chủ')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('home')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero-slider" th:if="${featured != null and !featured.isEmpty()}"
+             data-hero-slider data-hero-delay="6000" tabindex="0"
+             aria-label="Phim đang chiếu">
+        <div class="hero-track">
+            <article class="hero-slide" th:each="movie, iter : ${featured}"
+                     th:classappend="${iter.first} ? 'is-active' : ''">
+                <img class="hero-img" th:if="${movie.backdrop != null}"
+                     th:src="${movie.backdrop}" th:alt="${movie.title}">
+                <div class="hero-content">
+                    <span class="badge badge-new">Đang chiếu</span>
+                    <h2 th:text="${movie.title}">Phim đang chiếu</h2>
+                    <p th:text="${movie.description != null and #strings.length(movie.description) > 180
+                                  ? #strings.substring(movie.description, 0, 180) + '...'
+                                  : movie.description}">Mô tả</p>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <a class="btn btn-primary" th:href="@{/movies/{id}(id=${movie.id})}">Xem lịch chiếu</a>
+                        <button class="btn btn-outline" type="button" th:if="${movie.trailerUrl != null}"
+                                th:attr="data-trailer-open='1',data-trailer-url=${movie.trailerUrl},data-trailer-title=${movie.title}">
+                            ▶ Xem trailer
+                        </button>
+                        <a class="btn btn-outline" th:if="${movie.trailerUrl == null}"
+                           th:href="@{/movies}">Khám phá phim</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <button class="hero-arrow hero-prev" type="button" data-hero-prev aria-label="Phim trước">&#8249;</button>
+        <button class="hero-arrow hero-next" type="button" data-hero-next aria-label="Phim sau">&#8250;</button>
+
+        <div class="hero-dots" th:if="${featured.size() > 1}" role="tablist">
+            <button class="hero-dot" type="button" th:each="movie, iter : ${featured}"
+                    th:classappend="${iter.first} ? 'is-active' : ''"
+                    th:attr="data-hero-dot=${iter.index},aria-label=${'Phim ' + movie.title},aria-selected=${iter.first} ? 'true' : 'false'"></button>
+        </div>
+    </section>
+
+    <!-- ======================== PHIM ĐỀ XUẤT ======================== -->
+    <section class="section" th:if="${recommended != null and !recommended.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Phim đề xuất</h2>
+                <p class="section-sub">Những bộ phim đang được khán giả quan tâm nhất hệ thống</p>
+            </div>
+            <a class="section-link" th:href="@{/movies}">Xem tất cả →</a>
+        </div>
+
+        <div class="movie-grid">
+            <a class="card movie-card" th:each="movie : ${recommended}"
+               th:href="@{/movies/{id}(id=${movie.id})}">
+                <img class="poster" th:if="${movie.poster != null}" th:src="${movie.poster}"
+                     th:alt="${movie.title}" loading="lazy">
+                <div class="fallback" th:if="${movie.poster == null}" th:text="${movie.title}">?</div>
+                <div class="card-body">
+                    <h3 th:text="${movie.title}">Tên phim</h3>
+                    <div class="movie-meta">
+                        <span class="badge badge-rating" th:text="${movie.rating}">P</span>
+                        <span th:text="${movie.duration} + ' phút'">120 phút</span>
+                    </div>
+                    <div class="movie-meta" style="margin-top:5px"
+                         th:text="${movie.genre != null ? movie.genre : ''}">Thể loại</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="empty" th:if="${recommended == null or recommended.isEmpty()}">
+            <div class="empty-icon">🎬</div>
+            <div>Hiện chưa có phim nào đang chiếu</div>
+        </div>
+    </section>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<div th:replace="~{fragments/layout :: trailerModal}"></div>
+
+<script th:src="@{/js/hero-slider.js}"></script>
+
+</body>
+</html>

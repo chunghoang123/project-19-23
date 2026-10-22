@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CineX Local" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="cinex.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.cinex.CinexApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project-19-23-main" />
+    <envs>
+      <env name="DB_HOST" value="127.0.0.1" />
+      <env name="DB_PORT" value="3306" />
+      <env name="DB_NAME" value="cinex_local" />
+      <env name="DB_USER" value="cinex" />
+      <env name="DB_PASSWORD" value="cinex" />
+      <env name="APP_PORT" value="8080" />
+      <env name="APP_SEED_ENABLED" value="true" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

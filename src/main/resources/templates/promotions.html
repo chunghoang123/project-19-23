@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Khuyến mãi')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('promotions')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Khuyến mãi CineX</h2>
+                <p class="section-sub">Dùng mã ưu đãi khi thanh toán để được giảm giá</p>
+            </div>
+        </div>
+
+        <div class="movie-grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+            <div class="card card-body" th:each="promo : ${promotions}">
+                <span class="badge badge-new" th:text="${promo.code}">CODE</span>
+                <h3 style="margin:10px 0 6px;font-size:17px" th:text="${promo.title}">Tiêu đề</h3>
+                <p style="color:var(--text-dim);font-size:13.5px;margin:0 0 14px" th:text="${promo.description}">Mô tả</p>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px">
+                    <span style="color:var(--gold);font-weight:800">
+                        <span th:if="${promo.discountType == 'percent'}"
+                              th:text="'Giảm ' + ${promo.discountValue} + '%'">-</span>
+                        <span th:if="${promo.discountType == 'fixed'}"
+                              th:text="'Giảm ' + ${#numbers.formatInteger(promo.discountValue, 1, 'COMMA')} + ' đ'">-</span>
+                    </span>
+                    <span style="color:var(--text-dim)" th:if="${promo.endDate != null}"
+                          th:text="'Đến ' + ${#temporals.format(promo.endDate, 'dd/MM/yyyy')}">Đến</span>
+                </div>
+
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
+                            color:var(--text-dim);font-size:12.5px">
+                    Áp dụng cho đơn từ
+                    <strong th:text="${#numbers.formatInteger(promo.minAmount, 1, 'COMMA')} + ' đ'">0 đ</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${promotions == null or promotions.isEmpty()}">
+            <div class="empty-icon">🎁</div>
+            <div>Hiện chưa có chương trình khuyến mãi</div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý đơn đặt vé')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Quản lý đơn đặt vé</h2>
+                <p class="section-sub">Theo dõi toàn bộ giao dịch tại hệ thống</p>
+            </div>
+            <a class="btn btn-outline btn-sm" th:href="@{/admin}">← Về bảng điều khiển</a>
+        </div>
+
+        <div class="card card-body">
+            <table class="table">
+                <thead>
+                <tr><th>Mã đơn</th><th>Khách hàng</th><th>Phim</th><th>Rạp</th><th>Suất chiếu</th><th>Tổng tiền</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="booking : ${bookings.content}">
+                    <td class="ticket-code" th:text="${booking.code}">BK000</td>
+                    <td th:text="${booking.user.name}">—</td>
+                    <td th:text="${booking.showtime.movie.title}">—</td>
+                    <td th:text="${booking.showtime.cinema.name}">—</td>
+                    <td th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm dd/MM')}">—</td>
+                    <td th:text="${#numbers.formatInteger(booking.finalAmount, 1, 'COMMA')} + ' đ'">—</td>
+                    <td>
+                        <span class="badge" th:if="${booking.status == 'confirmed'}" style="color:var(--green)">Đã thanh toán</span>
+                        <span class="badge" th:if="${booking.status == 'pending'}" style="color:var(--gold)">Chờ thanh toán</span>
+                        <span class="badge" th:if="${booking.status == 'cancelled'}" style="color:var(--brand-soft)">Đã huỷ</span>
+                    </td>
+                </tr>
+                <tr th:if="${bookings == null or bookings.isEmpty()}">
+                    <td colspan="7" style="text-align:center;color:var(--text-dim)">Chưa có đơn đặt vé nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" th:if="${bookings != null and bookings.totalPages > 1}">
+            <a th:if="${!bookings.first}" th:href="@{/admin/bookings(page=${bookings.number - 1})}">←</a>
+            <span class="active" th:text="${bookings.number + 1}">1</span>
+            <a th:if="${!bookings.last}" th:href="@{/admin/bookings(page=${bookings.number + 1})}">→</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

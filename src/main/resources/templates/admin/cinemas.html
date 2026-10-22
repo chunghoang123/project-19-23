@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý rạp')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">Quản lý hệ thống rạp</h2>
+                <p class="section-sub">Toàn bộ chi nhánh thuộc chuỗi rạp CineX</p>
+            </div>
+            <a class="btn btn-outline btn-sm" th:href="@{/admin}">← Về bảng điều khiển</a>
+        </div>
+
+        <div th:each="entry : ${grouped}">
+            <h3 style="margin:26px 0 12px;font-size:17px" th:text="${entry.key}">Tỉnh</h3>
+            <div class="card card-body">
+                <table class="table">
+                    <thead>
+                    <tr><th>Tên chi nhánh</th><th>Địa chỉ</th><th>Thương hiệu</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cinema : ${entry.value}">
+                        <td style="font-weight:600" th:text="${cinema.name}">—</td>
+                        <td style="color:var(--text-dim);font-size:13px" th:text="${cinema.address}">—</td>
+                        <td><span class="badge" th:text="${cinema.brand}">CineX</span></td>
+                        <td style="text-align:right">
+                            <a class="btn btn-sm btn-outline" th:href="@{/cinemas/{id}(id=${cinema.id})}">Xem</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
