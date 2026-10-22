@@ -16,6 +16,7 @@ build/
 # ===== Biến môi trường / secrets =====
 .env
 .env.local
+.env.bak*
 student.env
 
 # ===== OS =====
