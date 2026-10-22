@@ -55,6 +55,8 @@ project 19-23/
 
 ## Chạy dự án
 
+> 📖 **Hướng dẫn đầy đủ**: [`docs/HUONG-DAN-CHAY.md`](docs/HUONG-DAN-CHAY.md)
+
 ### Cách 1: Docker Compose (khuyến nghị)
 
 ```bash
